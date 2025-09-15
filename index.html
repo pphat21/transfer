@@ -183,23 +183,20 @@
         </div>
     </div>
 
-    <script>
+    <!-- sweetalert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
 document.getElementById('personnelForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
-    const statusMessage = document.getElementById('statusMessage');
-    const statusText = document.getElementById('statusText');
-    
-    statusMessage.className = 'mt-6 text-center';
-    statusMessage.querySelector('div').className = 'inline-flex items-center px-4 py-2 rounded-lg bg-blue-100 text-blue-800';
-    statusText.textContent = 'กำลังบันทึกข้อมูล...';
-    
+
     const formData = new FormData(this);
     const data = {};
-    
+
+    // set ค่าเริ่มต้น
     data.positionTypes = { 'ขรก':0, 'พรก':0, 'ลจค':0, 'พกส':0, 'จ้างเหมา':0 };
     data.transferWishTypes = { 'ถ่ายโอน':0, 'ไม่ถ่ายโอน':0 };
-    
+
     for (let [key, value] of formData.entries()) {
         if (key === 'positionType') {
             data.positionTypes[value] = 1;
@@ -215,19 +212,37 @@ document.getElementById('personnelForm').addEventListener('submit', async functi
             'https://script.google.com/macros/s/AKfycbzu-t8EqU1WCjY8XSDrM9nCdacHCqcxMJfX1xoF2GTffdHBs_v56GfKZmulxUyJVl0y4g/exec',
             {
                 method: 'POST',
-                mode: 'no-cors', // ถ้า GAS ตั้งเป็น doPost รับ JSON, ต้องเปิด CORS ด้วย
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             }
         );
 
-        statusMessage.querySelector('div').className = 'inline-flex items-center px-4 py-2 rounded-lg bg-green-100 text-green-800';
-        statusText.textContent = 'บันทึกข้อมูลสำเร็จ!';
+        const result = await response.json();
+
+        if (result.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'บันทึกข้อมูลสำเร็จ',
+                text: 'ได้ทำการบันทึกข้อมูลเรียบร้อยแล้ว',
+                confirmButtonText: 'ตกลง'
+            }).then(() => {
+                window.location.reload(); // รีเฟรชหน้า
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: result.message || 'ไม่สามารถบันทึกข้อมูลได้'
+            });
+        }
     } catch (error) {
-        statusMessage.querySelector('div').className = 'inline-flex items-center px-4 py-2 rounded-lg bg-red-100 text-red-800';
-        statusText.textContent = 'เกิดข้อผิดพลาด: ' + error;
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: error.toString()
+        });
     }
 });
 </script>
+
+
