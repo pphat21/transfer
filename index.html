@@ -426,13 +426,22 @@
                 formData.append('position', document.getElementById('position').value);
                 formData.append('rateNumber', document.getElementById('rateNumber').value);
                 
-                // Position type - set 1 for selected type, empty for others
-                const positionType = document.querySelector('input[name="positionType"]:checked').value;
-                formData.append('khrk', positionType === 'khrk' ? '1' : '');
-                formData.append('phrk', positionType === 'phrk' ? '1' : '');
-                formData.append('ljkh', positionType === 'ljkh' ? '1' : '');
-                formData.append('pkgs', positionType === 'pkgs' ? '1' : '');
-                formData.append('contract', positionType === 'contract' ? '1' : '');
+                // Position type - set 1 for selected type, 0 for others
+                const positionType = document.querySelector('input[name="positionType"]:checked');
+                if (positionType) {
+                    formData.append('khrk', positionType.value === 'khrk' ? '1' : '0');
+                    formData.append('phrk', positionType.value === 'phrk' ? '1' : '0');
+                    formData.append('ljkh', positionType.value === 'ljkh' ? '1' : '0');
+                    formData.append('pkgs', positionType.value === 'pkgs' ? '1' : '0');
+                    formData.append('contract', positionType.value === 'contract' ? '1' : '0');
+                } else {
+                    // If no position type selected
+                    formData.append('khrk', '0');
+                    formData.append('phrk', '0');
+                    formData.append('ljkh', '0');
+                    formData.append('pkgs', '0');
+                    formData.append('contract', '0');
+                }
                 
                 // Salary and compensation
                 formData.append('currentSalary', document.getElementById('currentSalary').value || '0');
@@ -442,10 +451,22 @@
                 formData.append('houseRent', document.getElementById('houseRent').value || '0');
                 formData.append('educationFee', document.getElementById('educationFee').value || '0');
                 
-                // Transfer wish - set 1 for selected option, empty for other
-                const transferWish = document.querySelector('input[name="transferWish"]:checked').value;
-                formData.append('transfer', transferWish === 'transfer' ? '1' : '');
-                formData.append('noTransfer', transferWish === 'noTransfer' ? '1' : '');
+                // Transfer wish - set 1 for selected option, 0 for other
+                const transferWish = document.querySelector('input[name="transferWish"]:checked');
+                if (transferWish) {
+                    formData.append('transfer', transferWish.value === 'transfer' ? '1' : '0');
+                    formData.append('noTransfer', transferWish.value === 'noTransfer' ? '1' : '0');
+                } else {
+                    // If no transfer option selected
+                    formData.append('transfer', '0');
+                    formData.append('noTransfer', '0');
+                }
+                
+                // Debug: Log form data
+                console.log('Form Data being sent:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(key + ': ' + value);
+                }
                 
                 // Send to Google Apps Script
                 const response = await fetch('https://script.google.com/macros/s/AKfycbwr4CeSmy1ZzyACebwKwfVuOGm8v26f4eceQ7pmjdYHQyvdu-FqAEOwXsG-HRX1Ou2O7g/exec', {
