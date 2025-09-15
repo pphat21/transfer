@@ -179,8 +179,8 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
         formData.append('recordDate', recordDate);
 
         // Debug log
-        //console.log('Form Data:');
-        //for (let [key, value] of formData.entries()) console.log(key, value);
+        console.log('Form Data:');
+        for (let [key, value] of formData.entries()) console.log(key, value);
 
         // ส่งไป Google Apps Script
         const response = await fetch('https://script.google.com/macros/s/AKfycbwt8CXye0x88c02wyhhrniutsOvUOBEwslsAL6mDbloP6Tu3yF71BVUo5cuM-c3USLb0Q/exec', {
@@ -226,6 +226,7 @@ document.querySelectorAll('.checkbox-item, .radio-item').forEach(item => {
 </script>
 </body>
 </html>
+
 
 
 
