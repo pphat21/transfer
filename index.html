@@ -1,104 +1,402 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>บันทึกข้อมูลบุคลากร</title>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body>
-  <h2>ฟอร์มบันทึกข้อมูลบุคลากร</h2>
-  <form id="personnelForm">
-    <label>อำเภอ:</label>
-    <input type="text" name="district" required><br><br>
-
-    <label>หน่วยบริการ:</label>
-    <input type="text" name="serviceUnit" required><br><br>
-
-    <label>ชื่อ-นามสกุล:</label>
-    <input type="text" name="fullName" required><br><br>
-
-    <label>ตำแหน่ง:</label>
-    <input type="text" name="position"><br><br>
-
-    <label>อัตราเลขที่:</label>
-    <input type="text" name="rateNumber"><br><br>
-
-    <label>ประเภทตำแหน่ง:</label>
-    <select name="positionType">
-      <option value="ขรก.">ขรก.</option>
-      <option value="พรก.">พรก.</option>
-      <option value="ลจค.">ลจค.</option>
-      <option value="พกส.">พกส.</option>
-      <option value="จ้างเหมา">จ้างเหมา</option>
-    </select><br><br>
-
-    <label>เงินเดือนปัจจุบัน:</label>
-    <input type="number" name="currentSalary"><br><br>
-
-    <label>พ.ต.ส.:</label>
-    <input type="text" name="pts"><br><br>
-
-    <label>ฉ.11:</label>
-    <input type="text" name="ch11"><br><br>
-
-    <label>ค่าตอบแทนอื่นๆ:</label>
-    <input type="text" name="otherCompensation"><br><br>
-
-    <label>ค่าเช่าบ้าน:</label>
-    <input type="number" name="houseRent"><br><br>
-
-    <label>ค่าศึกษาบุตร:</label>
-    <input type="number" name="childEducation"><br><br>
-
-    <label>ความประสงค์:</label>
-    <select name="transferWish">
-      <option value="ถ่ายโอน">ถ่ายโอน</option>
-      <option value="ไม่ถ่ายโอน">ไม่ถ่ายโอน</option>
-    </select><br><br>
-
-    <button type="submit">บันทึก</button>
-  </form>
-
-  <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbzu-t8EqU1WCjY8XSDrM9nCdacHCqcxMJfX1xoF2GTffdHBs_v56GfKZmulxUyJVl0y4g/exec";
-
-    document.getElementById('personnelForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      const formData = new FormData(this);
-
-      try {
-        const response = await fetch(scriptURL, {
-          method: "POST",
-          body: formData   // ✅ ไม่ต้องใส่ headers
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          Swal.fire({
-            icon: "success",
-            title: "บันทึกสำเร็จ",
-            text: "ได้ทำการบันทึกข้อมูลเรียบร้อยแล้ว",
-            confirmButtonText: "ตกลง"
-          }).then(() => {
-            window.location.reload(); // รีเฟรชหน้ากลับมาฟอร์มเปล่า
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "ผิดพลาด",
-            text: result.message || "ไม่สามารถบันทึกข้อมูลได้"
-          });
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบฟอร์มสำรวจข้อมูลบุคลากร - เวอร์ชัน 7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Sarabun', sans-serif;
         }
-      } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "ผิดพลาด",
-          text: err.toString()
+        
+        .form-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .input-group {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .checkbox-group {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+        
+        input[type="text"], input[type="number"], select {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 16px 32px;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(79, 172, 254, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .field-label {
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .checkbox-label {
+            color: #374151;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+        
+        .version-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-8">
+    <div class="version-badge">
+        เวอร์ชัน 7
+    </div>
+    
+    <div class="container mx-auto px-4 max-w-4xl">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">แบบฟอร์มสำรวจข้อมูลบุคลากร</h1>
+            <p class="text-gray-600 text-lg">กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</p>
+        </div>
+
+        <form id="personnelForm" class="space-y-6">
+            <!-- ส่วนที่ 1: ข้อมูลพื้นฐาน -->
+            <div class="form-section">
+                <h2 class="section-title">📋 ข้อมูลพื้นฐาน</h2>
+                
+                <div class="input-group">
+                    <label class="field-label">เขต/อำเภอ</label>
+                    <select name="district" required class="w-full">
+                        <option value="">เลือกเขต/อำเภอ</option>
+                        <option value="เขต 1">เขต 1</option>
+                        <option value="เขต 2">เขต 2</option>
+                        <option value="เขต 3">เขต 3</option>
+                        <option value="อำเภอเมือง">อำเภอเมือง</option>
+                        <option value="อำเภอแก่งกระจาน">อำเภอแก่งกระจาน</option>
+                        <option value="อำเภอทับสะแก">อำเภอทับสะแก</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="field-label">หน่วยบริการ</label>
+                    <input type="text" name="serviceUnit" required class="w-full" placeholder="ระบุหน่วยบริการ">
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="input-group">
+                        <label class="field-label">ชื่อ-นามสกุล</label>
+                        <input type="text" name="fullName" required class="w-full" placeholder="ระบุชื่อ-นามสกุล">
+                    </div>
+                    <div class="input-group">
+                        <label class="field-label">ตำแหน่ง</label>
+                        <input type="text" name="position" required class="w-full" placeholder="ระบุตำแหน่ง">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="field-label">เลขที่อัตรา</label>
+                    <input type="text" name="rateNumber" class="w-full" placeholder="ระบุเลขที่อัตรา (ถ้ามี)">
+                </div>
+            </div>
+
+            <!-- ส่วนที่ 2: ประเภทตำแหน่ง -->
+            <div class="form-section">
+                <h2 class="section-title">👥 ประเภทตำแหน่ง</h2>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="checkbox-group">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="positionType" value="ขรก" class="w-5 h-5 text-blue-600 rounded">
+                            <span class="checkbox-label">ขรก.</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="positionType" value="พรก" class="w-5 h-5 text-blue-600 rounded">
+                            <span class="checkbox-label">พรก.</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="positionType" value="ลจค" class="w-5 h-5 text-blue-600 rounded">
+                            <span class="checkbox-label">ลจค.</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="positionType" value="พกส" class="w-5 h-5 text-blue-600 rounded">
+                            <span class="checkbox-label">พกส.</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="positionType" value="จ้างเหมา" class="w-5 h-5 text-blue-600 rounded">
+                            <span class="checkbox-label">เจ้าเหมาบริการ</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนที่ 3: ข้อมูลเงินเดือนและสวัสดิการ -->
+            <div class="form-section">
+                <h2 class="section-title">💰 ข้อมูลเงินเดือนและสวัสดิการ</h2>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="input-group">
+                        <label class="field-label">เงินเดือนปัจจุบัน (บาท)</label>
+                        <input type="number" name="currentSalary" class="w-full" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label class="field-label">เงิน ป.ต.ส. (บาท)</label>
+                        <input type="number" name="pts" class="w-full" placeholder="0">
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="input-group">
+                        <label class="field-label">เงิน ช.ม.11 (บาท)</label>
+                        <input type="number" name="ch11" class="w-full" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label class="field-label">เงินประจำตำแหน่ง/เงินวิชาชีพ (บาท)</label>
+                        <input type="number" name="otherCompensation" class="w-full" placeholder="0">
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="input-group">
+                        <label class="field-label">เงินช่วยเหลือค่าเช่าบ้าน (บาท)</label>
+                        <input type="number" name="houseRent" class="w-full" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label class="field-label">เงินช่วยเหลือการศึกษาบุตร (บาท)</label>
+                        <input type="number" name="childEducation" class="w-full" placeholder="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนที่ 4: ความประสงค์การถ่ายโอน -->
+            <div class="form-section">
+                <h2 class="section-title">🔄 ความประสงค์การถ่ายโอน</h2>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="checkbox-group">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="transferWish" value="ถ่ายโอน" class="w-5 h-5 text-green-600 rounded">
+                            <span class="checkbox-label">ถ่ายโอน</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="transferWish" value="ไม่ถ่ายโอน" class="w-5 h-5 text-red-600 rounded">
+                            <span class="checkbox-label">ไม่ถ่ายโอน</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ปุ่มส่งข้อมูล -->
+            <div class="text-center">
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span id="submitText">📤 ส่งข้อมูล</span>
+                    <span id="loadingSpinner" class="loading hidden"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('personnelForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            // แสดงสถานะกำลังส่ง
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+            
+            try {
+                // รวบรวมข้อมูลจากฟอร์ม
+                const formData = new FormData(this);
+                
+                // จัดการข้อมูล checkbox สำหรับประเภทตำแหน่ง
+                const positionTypes = {};
+                const positionCheckboxes = document.querySelectorAll('input[name="positionType"]:checked');
+                ['ขรก', 'พรก', 'ลจค', 'พกส', 'จ้างเหมา'].forEach(type => {
+                    positionTypes[type] = 0;
+                });
+                positionCheckboxes.forEach(checkbox => {
+                    positionTypes[checkbox.value] = 1;
+                });
+                
+                // จัดการข้อมูล checkbox สำหรับความประสงค์การถ่ายโอน
+                const transferWishTypes = {};
+                const transferCheckboxes = document.querySelectorAll('input[name="transferWish"]:checked');
+                ['ถ่ายโอน', 'ไม่ถ่ายโอน'].forEach(type => {
+                    transferWishTypes[type] = 0;
+                });
+                transferCheckboxes.forEach(checkbox => {
+                    transferWishTypes[checkbox.value] = 1;
+                });
+                
+                // สร้างข้อมูลที่จะส่ง
+                const data = {
+                    district: formData.get('district'),
+                    serviceUnit: formData.get('serviceUnit'),
+                    fullName: formData.get('fullName'),
+                    position: formData.get('position'),
+                    rateNumber: formData.get('rateNumber'),
+                    positionTypes: positionTypes,
+                    currentSalary: formData.get('currentSalary'),
+                    pts: formData.get('pts'),
+                    ch11: formData.get('ch11'),
+                    otherCompensation: formData.get('otherCompensation'),
+                    houseRent: formData.get('houseRent'),
+                    childEducation: formData.get('childEducation'),
+                    transferWishTypes: transferWishTypes
+                };
+                
+                // ส่งข้อมูลไปยัง Google Apps Script
+                const response = await fetch('https://script.google.com/macros/s/AKfycbxlUnoyMC6sONbXG2FxvuXbt7tNIkrKVYDqnwNINhjemuF5_oHgtw21V2yr_s5QSLYIbg/exec', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // แสดง SweetAlert เมื่อสำเร็จ
+                    await Swal.fire({
+                        title: 'สำเร็จ!',
+                        text: 'บันทึกข้อมูลเรียบร้อยแล้ว',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#4facfe',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    });
+                    
+                    // รีเฟรชหน้าฟอร์ม
+                    window.location.reload();
+                } else {
+                    throw new Error(result.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                
+                // แสดง SweetAlert เมื่อเกิดข้อผิดพลาด
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#ef4444'
+                });
+            } finally {
+                // คืนสถานะปุ่ม
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+            }
         });
-      }
-    });
-  </script>
-</body>
+        
+        // ป้องกันการเลือก checkbox หลายตัวในกลุ่มความประสงค์การถ่ายโอน
+        const transferCheckboxes = document.querySelectorAll('input[name="transferWish"]');
+        transferCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    transferCheckboxes.forEach(other => {
+                        if (other !== this) {
+                            other.checked = false;
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97f645bf327e8961',t:'MTc1NzkxOTg5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
